@@ -55,7 +55,7 @@ fn cnt2char(n: Int) -> StringLiteral:
     #var symbols= " .:-=+*#%@"
     #var symbols = ['M', 'W', '2', 'a', '_', '.', ' ']
     var numsym=7
-    var idx = int(n/MAX_ITERS*(numsym-1))
+    var idx = round(n/MAX_ITERS*(numsym-1))
     if idx==0: return 'M'
     elif idx==1: return 'W'
     elif idx==2: return '2'
@@ -64,6 +64,7 @@ fn cnt2char(n: Int) -> StringLiteral:
     elif idx==5: return '.'
     else: return ' '
     #return symbols[idx]
+
 
 fn main() raises:
     var matrix = Matrix[int_type, width, height]()
@@ -91,7 +92,7 @@ fn main() raises:
     else:
         parallelize[worker](width, height)
 
-    if True: # for gnuplot
+    if False: # for gnuplot
         for y in range(width):
             for x in range(height):
                 print(matrix[y,x], end=' ')

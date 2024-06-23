@@ -20,44 +20,44 @@ Run
 ```
 % ./mandelbrot
 Mandelbrot  1000 x 750
-...................................................................
-....................................................._.............
-...................................................................
-...................................................................
-...................................................................
-...................................................._..............
-......................................................_............
-...................................................................
-..............................................................._...
-................._.............................................___.
-.._.............................................................M_.
-....._........._............._.............................._._....
-...._M......................................................_.....a
-..._...._..........................................................
-........._._._.....................................................
-_.........._.a._.........._....................................2___
-.............___.._.........................................__2..._
-..........._..a...a_......_..........................._._____2__aMa
-.............._a___.......____..........._...................M2_MMM
-..........._.__MMM__......._............._...................aMMMMM
-.........__._aMMMMM___a_____W................_...._........2WaMMMMM
-............._aMMMaWMMMa2MM_a.._.............__a_........____MMMMMM
-..............__MMMMMMMMMMM____.............__a22_..........aMMMMMM
-........._a___2MMMMMMMMMMMMM___..............._WW_a..._a__...2MMMMM
-......_...._2MMMMMMMMMMMMMMMMM_.._..._......._MMMa_..__M__M.___2MMM
-......._..__MMMMMMMMMMMMMMMMMM_W.......__...._MMMMM_M_MM__MMMMMMMMM
-....._.___2MMMMMMMMMMMMMMMMMMMM_......_MM__a__MMMMMMMMMMMMMMMMMMMMM
-...__...__MMMMMMMMMMMMMMMMMMMM2_...._..MMM__MMMMMMMMMMMMMMMMMMMMMMM
-.........a__MMMMMMMMMMMMMMMMMM__.2._aM__MMMMMMMMMMMMMMMMMMMMMMMMMMM
-.........._2MMMMMMMMMMMMMMMMMMM._.MMaMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
-........___MMMMMMMMMMMMMMMMMMa__2MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
-........__aMMMMMMMMMMMMMMMMMM_MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
-............_MMMMMMMMMMMMMMMWMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
-............__aaMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
-..............a_2aMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
-.................a___MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
-.................__MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
-.............W_WMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+                                                     ..            
+                                                     ...           
+                                                    ..             
+                 .                                . ..             
+               .                                     .             
+ ..            .                                    ...  ..... .   
+               .                                      .... ... ..  
+  .             ..                                          .....  
+ .    .         .  .                                         ......
+...  .          ..                                            ..._ 
+ ......     .  ....                                           ..M_.
+ ...._. .    .....         ....                             .......
+  ...M..... .....         ..                                _.....a
+  ...............         .                                    ....
+   . . ...._._...  ..     ..                                   ....
+...     ....._......      ...                        .     ....a__.
+       ......._......   .....             ..          ..   ._.a..._
+           ..._...a............         ...           .......a..aM_
+          .....a..........__._.          ..            ......M2_MMM
+         ....._MMM_........_...          ...   .        .....aMMMMM
+       ......_MMMMM._.__._._2.....        ....... .     ...a2_MMMMM
+        ....._aMMMaWMMMa2MM__....          ...._... .......__MMMMMM
+         ......_MMMMMMMMMMM._._..         ...__22..........._MMMMMM
+   ......_a.._aMMMMMMMMMMMMM.._...   ..  ......2W.a...__.....aMMMMM
+     .......aMMMMMMMMMMMMMMMMM_.............._MMMa_..__M._M....aMMM
+    ..._....MMMMMMMMMMMMMMMMMM.2........_.....MMMMM.M.MM__MMMMMMMMM
+  ......__aMMMMMMMMMMMMMMMMMMMM_.......MM.._._MMMMMMMMMMMMMMMMMMMMM
+ ........_MMMMMMMMMMMMMMMMMMMMa_.......MMM__MMMMMMMMMMMMMMMMMMMMMMM
+.  ......_._MMMMMMMMMMMMMMMMMM_..a.._M._MMMMMMMMMMMMMMMMMMMMMMMMMMM
+       ....aMMMMMMMMMMMMMMMMMMM...MM_MMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+       ....MMMMMMMMMMMMMMMMMMa..aMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+       ..._MMMMMMMMMMMMMMMMMM_MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+      .......WMMMMMMMMMMMMMMWMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+    .........__aMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+         .....a.2_MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+          ......._.._MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+         ........._MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+       ......W_2MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 
 real	0m0.042s
 user	0m0.052s
