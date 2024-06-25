@@ -18,7 +18,6 @@ alias max_x = -1.0
 alias min_y = 0.2
 alias max_y = 0.35
 
-
 struct Matrix[type: DType, width: Int, height: Int]:
     var data: DTypePointer[type]
 
@@ -52,7 +51,7 @@ fn mandelbrot_kernel_SIMD[simd_width: Int](c: ComplexSIMD[float_type, simd_width
     return MAX_ITERS-iters
 
 fn cnt2char(n: Int) -> StringLiteral:
-    #var symbols= " .:-=+*#%@"
+    #var symbols= "@%#*+=-:. "
     #var symbols = ['M', 'W', '2', 'a', '_', '.', ' ']
     var numsym=7
     var idx = round(n/MAX_ITERS*(numsym-1))
@@ -84,13 +83,12 @@ fn main() raises:
 
         vectorize[compute_vector, simd_width, size=height]()
 
-    #print("Number of physical cores:", num_physical_cores())
-
     if False: #vectorized
         for row in range(width):
             worker(row)
     else:
-        parallelize[worker](width, height)
+        print("Number of physical cores:", num_physical_cores())
+        parallelize[worker](width, width)
 
     if False: # for gnuplot
         for y in range(width):
