@@ -88,7 +88,7 @@ fn main() raises:
             worker(row)
     else:
         print("Number of physical cores:", num_physical_cores())
-        parallelize[worker](width, width)
+        parallelize[worker](width, width)  # (work items, workers) 
 
     if False: # for gnuplot
         for y in range(width):
