@@ -18,7 +18,7 @@ Run
 ```
 
 ```
-% ./mandelbrot
+% time ./mandelbrot
 Mandelbrot  1000 x 750
                                                      ..            
                                                      ...           
