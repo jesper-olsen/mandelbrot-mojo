@@ -7,7 +7,8 @@ Other languages:
 * [Python](https://github.com/jesper-olsen/mandelbrot-py) 
 * [Rust](https://github.com/jesper-olsen/mandelbrot-rs) 
 * [Fortran](https://github.com/jesper-olsen/mandelbrot-f) 
-* [Erlang](https://github.com/jesper-olsen/mandelbrot_erl) 
+* [Erlang](https://github.com/jesper-olsen/mandelbrot_erl)
+* [Nushell](https://github.com/jesper-olsen/mandelbrot-nu)
 
 
 Run
