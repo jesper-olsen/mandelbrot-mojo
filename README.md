@@ -9,6 +9,7 @@ Other languages:
 * [Fortran](https://github.com/jesper-olsen/mandelbrot-f) 
 * [Erlang](https://github.com/jesper-olsen/mandelbrot_erl)
 * [Nushell](https://github.com/jesper-olsen/mandelbrot-nu)
+* [Awk](https://github.com/jesper-olsen/mandelbrot-awk)
 
 
 Run
