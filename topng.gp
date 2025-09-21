@@ -1,5 +1,5 @@
-#set terminal pngcairo size 5000,5000
-set terminal pngcairo 
+set terminal pngcairo size 5000,5000
+#set terminal pngcairo 
 set output 'mandelbrot.png'
 
 # Remove margins
@@ -14,4 +14,4 @@ unset ytics
 
 set palette defined (0 "black", 1 "white")
 
-plot 'image.txt' matrix with image
+plot 'image.dat' matrix with image
