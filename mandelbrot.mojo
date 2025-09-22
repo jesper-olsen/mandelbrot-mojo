@@ -1,13 +1,11 @@
 from math import iota
 from sys import num_physical_cores, simd_width_of, argv
-import benchmark
 from algorithm import parallelize, vectorize
 from complex import ComplexSIMD
 
 alias float_type = DType.float32
 alias int_type = DType.int32
 alias simd_width = 2 * simd_width_of[float_type]()
-alias unit = benchmark.Unit.ms
 
 alias cols = 5000 
 alias rows = 5000 
@@ -66,18 +64,25 @@ fn cnt2char(n: Int32) -> String:
 fn main() raises:
     # Parse command line arguments
     var use_gnuplot = False
-    if len(argv()) > 1:
-        if argv()[1] == "--gnuplot" or argv()[1] == "-g":
+    var use_parallel = False
+
+    for i in range(1, len(argv())):
+        var arg = argv()[i]
+        if arg == "--gnuplot" or arg == "-g":
             use_gnuplot = True
-        elif argv()[1] == "--ascii" or argv()[1] == "-a":
+        elif arg == "--ascii" or arg == "-a":
             use_gnuplot = False 
-        elif argv()[1] == "--help" or argv()[1] == "-h":
+        elif arg == "--parallel" or arg == "-p":
+            use_parallel = True
+        elif arg == "--help" or arg == "-h":
             print("Usage:", argv()[0], "[OPTIONS]")
             print("Options:")
             print("  --gnuplot, -g    Output data for gnuplot")
             print("  --ascii, -a      Output ASCII art (default)")
+            print("  --parallel, -p   Use parallel execution")
             print("  --help, -h       Show this help message")
             return
+
 
     var matrix = Matrix[int_type, rows, cols]()
 
@@ -98,7 +103,11 @@ fn main() raises:
         vectorize[compute_vector, simd_width, size=cols]()
 
     # Run the computation
-    parallelize[worker](rows, rows)
+    if use_parallel:
+        parallelize[worker](rows, rows)
+    else:
+        for row in range(rows):
+            worker(row)
 
     if use_gnuplot:
         for y in range(rows):

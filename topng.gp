@@ -1,4 +1,4 @@
-set terminal pngcairo size 5000,5000
+set terminal pngcairo size 1000,1000
 #set terminal pngcairo 
 set output 'mandelbrot.png'
 

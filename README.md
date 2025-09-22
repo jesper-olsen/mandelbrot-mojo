@@ -17,7 +17,7 @@ Single Thread/Multi-thread shows the number of seconds it takes to do a 5000x500
 | Erlang      | [mandelbrot_erl](https://github.com/jesper-olsen/mandelbrot_erl)   |            56.0 |         16.0 |
 | Fortran     | [mandelbrot-f](https://github.com/jesper-olsen/mandelbrot-f)       |            11.6 |              |
 | Lua         | [mandelbrot-lua](https://github.com/jesper-olsen/mandelbrot-lua)   |           158.2 |              |
-| **Mojo**    | [mandelbrot-mojo](https://github.com/jesper-olsen/mandelbrot-mojo) |                 |         40.8 |
+| **Mojo**    | [mandelbrot-mojo](https://github.com/jesper-olsen/mandelbrot-mojo) |            39.6 |         39.2 |
 | Nushell     | [mandelbrot-nu](https://github.com/jesper-olsen/mandelbrot-nu)     |   (est) 11488.5 |              |
 | Python      | [mandelbrot-py](https://github.com/jesper-olsen/mandelbrot-py)     |    (pure) 177.2 | (jax)    7.5 |
 | R           | [mandelbrot-R](https://github.com/jesper-olsen/mandelbrot-R)       |           562.0 |              |
@@ -81,14 +81,25 @@ Benchmark
 Below we will benchmark the time it takes to calculate a 5000x5000 = 25M pixel mandelbrot on a Macbook Air M1 (2020, 8 cores). All times are in seconds, and by the defaults it is the area with lower left {-1.20,0.20} and upper right {-1.0,0.35} that is mapped.
 
 ```sh
-time ./mandelbrot3 --ascii
-0.97s user 0.04s system 166% cpu 0.607 total
+time ./mandelbrot --ascii
+0.85s user 0.03s system 97% cpu 0.902 total
+```
+```sh
+./mandelbrot --ascii --parallel  
+0.99s user 0.03s system 349% cpu 0.291 total
 ```
 
 ```sh
-time ./mandelbrot3 --gnuplot >image.dat
+time ./mandelbrot --gnuplot >image.dat
 ./mandelbrot --gnuplot > image.dat  
-4.15s user 36.85s system 100% cpu 40.772 total
+4.12s user 34.63s system 97% cpu 39.574 total
 ```
 
-Note that the two invocations calculate the same 5000x5000 set - the difference is that the acii version only displays a scaled down version.
+```sh
+time ./mandelbrot --gnuplot --parallel >image.dat
+./mandelbrot --gnuplot > image.dat  
+4.02s user 35.20s system 99% cpu 39.233 total
+```
+
+Note that all the invocations calculate the same 5000x5000 set - the difference is that the acii version only displays a scaled down version. The mandelbrot calculation itself is very fast; printing to stdout takes most of the time.
+
