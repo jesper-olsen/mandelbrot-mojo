@@ -72,7 +72,9 @@ def ascii_output(config: Config):
         var row = String("")
         for x in range(config.width):
             var real = config.ll_x + Float64(x) * fwidth / Float64(config.width)
-            var imag = config.ur_y - Float64(y) * fheight / Float64(config.height)
+            var imag = config.ur_y - Float64(y) * fheight / Float64(
+                config.height
+            )
             var iters = escape_time(real, imag, config.max_iter)
             row += cnt2char(iters, config.max_iter)
         print(row)
@@ -87,7 +89,9 @@ def gptext_output(config: Config):
         var row = String("")
         for x in range(config.width):
             var real = config.ll_x + Float64(x) * fwidth / Float64(config.width)
-            var imag = config.ur_y - Float64(y) * fheight / Float64(config.height)
+            var imag = config.ur_y - Float64(y) * fheight / Float64(
+                config.height
+            )
             var iters = escape_time(real, imag, config.max_iter)
             if x > 0:
                 row += ", "
