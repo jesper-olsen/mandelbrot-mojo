@@ -1,127 +1,137 @@
-from math import iota
-from sys import num_physical_cores, simd_width_of, argv
-from algorithm import parallelize, vectorize
-from complex import ComplexSIMD
+"""
+Generates Mandelbrot set visualizations in ASCII or as gnuplot text data.
 
-alias float_type = DType.float32
-alias int_type = DType.int32
-alias simd_width = 2 * simd_width_of[float_type]()
+Mojo 1.0 port of the mandelbrot-c reference implementation - part of a
+cross-language Mandelbrot comparison project. Command-line arguments are
+parsed in `key=value` form.
 
-alias cols = 5000 
-alias rows = 5000 
-alias MAX_ITERS = 255
+Build:
+    mojo build mandelbrot.mojo
 
-alias min_x = -1.2
-alias max_x = -1.0
-alias min_y = 0.2
-alias max_y = 0.35
+Usage:
+    ./mandelbrot
+    ./mandelbrot width=120 ll_x=-0.75 ll_y=0.1 ur_x=-0.74 ur_y=0.11
+    ./mandelbrot png=1 width=800 height=600 > mandelbrot.dat
+"""
 
-struct Matrix[dtype: DType, rows: Int, cols: Int]:
-    var data: UnsafePointer[Scalar[dtype]]
+from std.sys import argv
 
-    fn __init__(out self):
-        self.data = UnsafePointer[Scalar[dtype]].alloc(rows * cols)
 
-    fn store[nelts: Int](self, row: Int, col: Int, val: SIMD[dtype, nelts]):
-        self.data.store(row * cols + col, val)
-    
-    fn get(self, row: Int, col: Int) -> Scalar[dtype]:
-        """Get a single value from the matrix."""
-        return self.data[row * cols + col]
+struct Config(Copyable, Movable):
+    var width: Int
+    var height: Int
+    var png: Bool
+    var ll_x: Float64
+    var ll_y: Float64
+    var ur_x: Float64
+    var ur_y: Float64
+    var max_iter: Int
 
-fn mandelbrot_kernel_SIMD[
-    simd_width: Int
-](c: ComplexSIMD[float_type, simd_width]) -> SIMD[int_type, simd_width]:
-    """A vectorized implementation of the inner mandelbrot computation."""
-    var cx = c.re
-    var cy = c.im
-    var x = SIMD[float_type, simd_width](0)
-    var y = SIMD[float_type, simd_width](0)
-    var iters = SIMD[int_type, simd_width](0)
-    var t = SIMD[DType.bool, simd_width](fill=True)
+    def __init__(out self):
+        self.width = 100
+        self.height = 75
+        self.png = False
+        self.ll_x = -1.2
+        self.ll_y = 0.20
+        self.ur_x = -1.0
+        self.ur_y = 0.35
+        self.max_iter = 255
 
-    for _ in range(MAX_ITERS):
-        if not any(t):
+
+def cnt2char(value: Int, max_iter: Int) -> String:
+    """Maps an iteration count to an ASCII character."""
+    comptime symbols: StaticString = "MW2a_. "
+    comptime ns = 7
+    var idx = Int(Float64(value) / Float64(max_iter) * Float64(ns - 1))
+    return String(symbols[byte=idx])
+
+
+def escape_time(cr: Float64, ci: Float64, max_iter: Int) -> Int:
+    """Calculates the escape time for a point in the complex plane."""
+    var zr: Float64 = 0.0
+    var zi: Float64 = 0.0
+    var iters = 0
+    while iters < max_iter:
+        var zr2 = zr * zr
+        var zi2 = zi * zi
+        if zr2 + zi2 > 4.0:
             break
-        var y2 = y * y
-        y = x.fma(y + y, cy)
-        t = x.fma(x, y2).le(4)
-        x = x.fma(x, cx - y2)
-        iters = t.select(iters + 1, iters)
-    return MAX_ITERS - iters
+        var tmp = zr2 - zi2 + cr
+        zi = 2.0 * zr * zi + ci
+        zr = tmp
+        iters += 1
+    return max_iter - iters
 
-fn cnt2char(n: Int32) -> String:
-    var numsym = 7
-    var idx = n * (numsym - 1) / MAX_ITERS
-    if idx == 0: return "M"
-    elif idx == 1: return "W"
-    elif idx == 2: return "2"
-    elif idx == 3: return "a"
-    elif idx == 4: return "_"
-    elif idx == 5: return "."
-    else: return " "
 
-fn main() raises:
-    # Parse command line arguments
-    var use_gnuplot = False
-    var use_parallel = False
+def ascii_output(config: Config):
+    """Renders the Mandelbrot set as ASCII art to stdout."""
+    var fwidth = config.ur_x - config.ll_x
+    var fheight = config.ur_y - config.ll_y
+
+    for y in range(config.height):
+        var row = String("")
+        for x in range(config.width):
+            var real = config.ll_x + Float64(x) * fwidth / Float64(config.width)
+            var imag = config.ur_y - Float64(y) * fheight / Float64(config.height)
+            var iters = escape_time(real, imag, config.max_iter)
+            row += cnt2char(iters, config.max_iter)
+        print(row)
+
+
+def gptext_output(config: Config):
+    """Generates text output suitable for gnuplot to stdout."""
+    var fwidth = config.ur_x - config.ll_x
+    var fheight = config.ur_y - config.ll_y
+
+    for y in range(config.height - 1, -1, -1):
+        var row = String("")
+        for x in range(config.width):
+            var real = config.ll_x + Float64(x) * fwidth / Float64(config.width)
+            var imag = config.ur_y - Float64(y) * fheight / Float64(config.height)
+            var iters = escape_time(real, imag, config.max_iter)
+            if x > 0:
+                row += ", "
+            row += String(iters)
+        print(row)
+
+
+def parse_arg(arg: String, mut config: Config) raises:
+    """Parses a single 'key=value' command-line argument."""
+    var parts = arg.split("=")
+    if len(parts) != 2:
+        print("Warning: Ignoring invalid argument '" + arg + "'")
+        return
+
+    var key = String(parts[0])
+    var value = String(parts[1])
+
+    if key == "width":
+        config.width = atol(value)
+    elif key == "height":
+        config.height = atol(value)
+    elif key == "png":
+        config.png = atol(value) != 0
+    elif key == "ll_x":
+        config.ll_x = atof(value)
+    elif key == "ll_y":
+        config.ll_y = atof(value)
+    elif key == "ur_x":
+        config.ur_x = atof(value)
+    elif key == "ur_y":
+        config.ur_y = atof(value)
+    elif key == "max_iter":
+        config.max_iter = atol(value)
+    else:
+        print("Warning: Unknown parameter '" + key + "'")
+
+
+def main() raises:
+    var config = Config()
 
     for i in range(1, len(argv())):
-        var arg = argv()[i]
-        if arg == "--gnuplot" or arg == "-g":
-            use_gnuplot = True
-        elif arg == "--ascii" or arg == "-a":
-            use_gnuplot = False 
-        elif arg == "--parallel" or arg == "-p":
-            use_parallel = True
-        elif arg == "--help" or arg == "-h":
-            print("Usage:", argv()[0], "[OPTIONS]")
-            print("Options:")
-            print("  --gnuplot, -g    Output data for gnuplot")
-            print("  --ascii, -a      Output ASCII art (default)")
-            print("  --parallel, -p   Use parallel execution")
-            print("  --help, -h       Show this help message")
-            return
+        parse_arg(String(argv()[i]), config)
 
-
-    var matrix = Matrix[int_type, rows, cols]()
-
-    @parameter
-    fn worker(row: Int):
-        alias scale_x = (max_x - min_x) / cols
-        alias scale_y = (max_y - min_y) / rows
-
-        @parameter
-        fn compute_vector[simd_width: Int](col: Int):
-            """Each time we operate on a `simd_width` vector of pixels."""
-            var cx = min_x + (col + iota[float_type, simd_width]()) * scale_x
-            var cy = min_y + row * SIMD[float_type, simd_width](scale_y)
-            var c = ComplexSIMD[float_type, simd_width](cx, cy)
-            matrix.store(row, col, mandelbrot_kernel_SIMD(c))
-
-        # Vectorize the call to compute_vector with a chunk of pixels.
-        vectorize[compute_vector, simd_width, size=cols]()
-
-    # Run the computation
-    if use_parallel:
-        parallelize[worker](rows, rows)
+    if config.png:
+        gptext_output(config)
     else:
-        for row in range(rows):
-            worker(row)
-
-    if use_gnuplot:
-        for y in range(rows):
-            for x in range(cols):
-                print(matrix.get(y, x), end=' ')
-            print()
-    else:
-        print("Mandelbrot ", cols, "x", rows)
-        var stepx = max(1, cols // 50)
-        var stepy = max(1, rows // 50)
-        for y in range(rows - 1, -1, -stepy):
-            for x in range(0, cols, stepx):
-                var val = matrix.get(y, x)
-                print(cnt2char(val), end='')
-            print()
-
-    matrix.data.free()
+        ascii_output(config)

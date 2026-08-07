@@ -1,11 +1,10 @@
-set terminal pngcairo size 1000,1000
-#set terminal pngcairo 
+set terminal pngcairo
 set output 'mandelbrot.png'
 
 # Remove margins
 set lmargin at screen 0
-set rmargin at screen 1
-set tmargin at screen 1
+set rmargin at screen 1 
+set tmargin at screen 1 
 set bmargin at screen 0
 
 unset border

@@ -1,29 +1,32 @@
-# Mandelbrot in Mojo 
+# Mandelbrot in Mojo
 
-This repository contains a Mojo implementation for generating visualizations of the Mandelbrot set. It is part of a larger project comparing implementations across various programming languages.
+This repository contains a [Mojo](https://mojolang.org/) implementation for generating visualizations of the Mandelbrot set. 
 
 The program compiles to a single native executable. It can render the Mandelbrot set directly to the terminal as ASCII art or produce a data file for `gnuplot` to generate a high-resolution PNG image.
 
 ### Other Language Implementations
 
-This project compares the performance and features of Mandelbrot set generation in different languages.
+This project is part of a suite of mandelbrot implementations in different languages.
+
 Single Thread/Multi-thread shows the number of seconds it takes to do a 5000x5000 calculation.
 
 
 | Language    | Repository                                                         | Single Thread   | Multi-Thread |
 | :--------   | :----------------------------------------------------------------- | ---------------:| -----------: |
-| Awk         | [mandelbrot-awk](https://github.com/jesper-olsen/mandelbrot-awk)   |           805.9 |              |
-| C           | [mandelbrot-c](https://github.com/jesper-olsen/mandelbrot-c)       |             6.9 |          1.4 |
-| Erlang      | [mandelbrot_erl](https://github.com/jesper-olsen/mandelbrot_erl)   |            56.0 |           16 |
-| Fortran     | [mandelbrot-f](https://github.com/jesper-olsen/mandelbrot-f)       |            11.6 |              |
-| Lua         | [mandelbrot-lua](https://github.com/jesper-olsen/mandelbrot-lua)   |           158.2 |              |
-| **Mojo**    | [mandelbrot-mojo](https://github.com/jesper-olsen/mandelbrot-mojo) |            39.6 |         39.2 |
-| Nushell     | [mandelbrot-nu](https://github.com/jesper-olsen/mandelbrot-nu)     |   (est) 11488.5 |              |
-| Python      | [mandelbrot-py](https://github.com/jesper-olsen/mandelbrot-py)     |    (pure) 177.2 | (jax)    7.5 |
-| R           | [mandelbrot-R](https://github.com/jesper-olsen/mandelbrot-R)       |           562.0 |              |
-| Rust        | [mandelbrot-rs](https://github.com/jesper-olsen/mandelbrot-rs)     |             8.4 |          2.2 |
-| Tcl         | [mandelbrot-tcl](https://github.com/jesper-olsen/mandelbrot-tcl)   |           706.1 |              |
-| Zig         | [mandelbrot-zig](https://github.com/jesper-olsen/mandelbrot-zig)   |             8.6 |          1.9 |
+| Awk         | [mandelbrot-awk](https://github.com/jesper-olsen/mandelbrot-awk)   |                 |              |
+| **C**       | [mandelbrot-c](https://github.com/jesper-olsen/mandelbrot-c)       |             3.6 |          0.6 |
+| Erlang      | [mandelbrot_erl](https://github.com/jesper-olsen/mandelbrot_erl)   |                 |              |
+| Fortran     | [mandelbrot-f](https://github.com/jesper-olsen/mandelbrot-f)       |                 |              |
+| Lua         | [mandelbrot-lua](https://github.com/jesper-olsen/mandelbrot-lua)   |                 |              |
+| Mojo        | [mandelbrot-mojo](https://github.com/jesper-olsen/mandelbrot-mojo) |             3.8 |              |
+| Nushell     | [mandelbrot-nu](https://github.com/jesper-olsen/mandelbrot-nu)     |                 |              |
+| Python      | [mandelbrot-py](https://github.com/jesper-olsen/mandelbrot-py)     |                 |              |
+| R           | [mandelbrot-R](https://github.com/jesper-olsen/mandelbrot-R)       |                 |              |
+| Rust        | [mandelbrot-rs](https://github.com/jesper-olsen/mandelbrot-rs)     |             4.7 |          1.3 |
+| Tcl         | [mandelbrot-tcl](https://github.com/jesper-olsen/mandelbrot-tcl)   |                 |              |
+| Zig         | [mandelbrot-zig](https://github.com/jesper-olsen/mandelbrot-zig)   |                 |              |
+
+
 
 
 
@@ -33,16 +36,20 @@ Single Thread/Multi-thread shows the number of seconds it takes to do a 5000x500
 
 You will need the following installed:
 
-1.  Mojo e.g. using the [uv package manager](https://docs.modular.com/mojo/manual/install).
+1.  The **Pixi** package management tool .
 2.  **Gnuplot** (required *only* for generating PNG images).
 
 ---
 
 ## Build
 
-```
-% uv run mojo build mandelbrot.mojo
-```
+You can compile the program directly or use the provided Makefile.
+
+``sh
+mojo build mandelbrot.mojo
+``
+
+---
 
 ## Usage
 
@@ -56,18 +63,24 @@ To render the Mandelbrot set directly in your terminal, run the executable.
 ./mandelbrot
 ```
 
+You can change the view and resolution by passing parameters:
+```sh
+# Zoom in on a different area with a wider view
+./mandelbrot width=120 ll_x=-0.75 ll_y=0.1 ur_x=-0.74 ur_y=0.11
+```
+
 ### 2. PNG Image Generation
 
 To create a high-resolution PNG, you first generate a data file and then process it with `gnuplot`.
 
 **Step 1: Generate the data file**
-Use option `--gnuplot` and redirect the output to a file.
+Set `png=1` and specify the desired dimensions. Redirect the output to a file.
 
 ```sh
-./mandelbrot --gnuplot > image.dat
+./mandelbrot png=1 width=1000 height=750 > image.dat
 ```
 
-**Step 3: Run gnuplot**
+**Step 2: Run gnuplot**
 This will read `image.dat` and create `mandelbrot.png`.
 
 ```sh
@@ -77,32 +90,20 @@ The result is a high-quality `mandelbrot.png` image.
 
 ![PNG Image of the Mandelbrot Set](mandelbrot.png)
 
+## Performance
 
-Benchmark
----------
+Benchmarks were run on an **Apple M1** system with Apple clang version 17.0.0 
 
-Below we will benchmark the time it takes to calculate a 5000x5000 = 25M pixel mandelbrot on a Macbook Air M1 (2020, 8 cores). All times are in seconds, and by the defaults it is the area with lower left {-1.20,0.20} and upper right {-1.0,0.35} that is mapped.
-
+**Generating a 1000x750 data file:**
 ```sh
-time ./mandelbrot --ascii
-0.85s user 0.03s system 97% cpu 0.902 total
-```
-```sh
-./mandelbrot --ascii --parallel  
-0.99s user 0.03s system 349% cpu 0.291 total
+time ./mandelbrot png=1 width=1000 height=750 > image.dat
+0.15s user 0.01s system 98% cpu 0.160 total
 ```
 
+**Generating a 5000x5000 data file:**
 ```sh
-time ./mandelbrot --gnuplot >image.dat
-./mandelbrot --gnuplot > image.dat  
-4.12s user 34.63s system 97% cpu 39.574 total
-```
+time ./mandelbrot png=1 width=5000 height=5000 > image.dat
+3.74s user 0.05s system 99% cpu 3.823 total
 
-```sh
-time ./mandelbrot --gnuplot --parallel >image.dat
-./mandelbrot --gnuplot > image.dat  
-4.02s user 35.20s system 99% cpu 39.233 total
 ```
-
-Note that all the invocations calculate the same 5000x5000 set - the difference is that the acii version only displays a scaled down version. The mandelbrot calculation itself is very fast; printing to stdout takes most of the time.
 
