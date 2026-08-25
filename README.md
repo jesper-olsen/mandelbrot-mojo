@@ -112,3 +112,10 @@ time ./mandelbrot_simd png=1 width=5000 height=5000 simd=1 parallel=1 > image.da
 
 ```
 
+**Generating a 20000x20000 data file with SIMD + Multi-Thread:**
+```sh
+time ./mandelbrot_simd png=1 width=20000 height=20000 simd=1 parallel=1 > image.dat
+image.da  10.87s user 0.39s system 218% cpu 5.155 total
+```
+
+
