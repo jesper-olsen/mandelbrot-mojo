@@ -29,6 +29,7 @@ from std.algorithm import parallelize
 from std.memory import alloc
 from std.atomic import Atomic
 from std.runtime.asyncrt import parallelism_level
+from std.algorithm.functional import parallelize
 
 comptime float_type = DType.float32
 comptime int_type = DType.int32
@@ -178,14 +179,16 @@ def compute_grid(config: Config) -> Grid:
                 var val = mandelbrot_kernel_simd[1](
                     SIMD[float_type, 1](cx_scalar), SIMD[float_type, 1](cy), max_iter
                 )
-                grid.store(row, col, val)
+                grid.store[1](row, col, val)
+                #grid.store[1](row, col, SIMD[DType.int32, 1](Int32(iters)))
                 col += 1
         else:
             var imag = ur_y64 - Float64(row) * fheight64 / Float64(h)
             for col in range(w):
                 var real = ll_x64 + Float64(col) * fwidth64 / Float64(w)
                 var iters = escape_time(real, imag, max_iter)
-                grid.store(row, col, SIMD[DType.int32, 1](Int32(iters)))
+                #grid.store(row, col, SIMD[DType.int32, 1](Int32(iters)))
+                grid.store[1](row, col, SIMD[DType.int32, 1](Int32(iters)))
 
     if config.parallel:
         var counter = Counter()

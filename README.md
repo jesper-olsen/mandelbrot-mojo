@@ -36,18 +36,17 @@ Single Thread/Multi-thread shows the number of seconds it takes to do a 5000x500
 
 You will need the following installed:
 
-1.  The **Pixi** package management tool .
-2.  **Gnuplot** (required *only* for generating PNG images).
+1. [Pixi](https://pixi.sh) - manages the Mojo toolchain (pinned via `pixi.toml`/`pixi.lock` in this repo, Mojo 1.0.0).
+2. **Gnuplot** (required *only* for generating PNG images).
 
 ---
 
 ## Build
 
-You can compile the program directly or use the provided Makefile.
-
-``sh
+```sh
+pixi shell
 mojo build mandelbrot.mojo
-``
+```
 
 ---
 
@@ -92,7 +91,7 @@ The result is a high-quality `mandelbrot.png` image.
 
 ## Performance
 
-Benchmarks were run on an **Apple M1** system with Apple clang version 17.0.0 
+Benchmarks were run on an **Apple M5** system with Mojo 1.0.0b2 (2cf4d08a)
 
 **Generating a 1000x750 data file:**
 ```sh
