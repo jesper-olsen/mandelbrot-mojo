@@ -106,7 +106,17 @@ time ./mandelbrot png=1 width=5000 height=5000 > image.dat
 
 ```
 
+**Generating a 5000x5000 data file with SIMD**
+```sh
+time ./mandelbrot_simd png=1 width=5000 height=5000 simd=1 parallel=0 > image.dat
+0.69s user 0.05s system 99% cpu 0.734 total
+```
+
 **Generating a 5000x5000 data file with SIMD + Multi-Thread:**
+
+Note - `parallelize` was in 1.0.0b2 but removed from the stdlib during Mojo 1.0's concurrency
+rework (confirmed missing as of 1.0.0 - see forum.modular.com/t/where-did-parallelize-go/3357).
+
 ```sh
 time ./mandelbrot_simd png=1 width=5000 height=5000 simd=1 parallel=1 > image.dat
 0.77s user 0.05s system 216% cpu 0.376 total

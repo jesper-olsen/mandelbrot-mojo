@@ -25,11 +25,14 @@ Usage:
 
 from std.sys import argv, simd_width_of, num_physical_cores
 from std.math import iota
-from std.algorithm import parallelize
 from std.memory import alloc
 from std.atomic import Atomic
+#from std.runtime.asyncrt import parallelism_level
+#from std.algorithm.functional import parallelize
 from std.runtime.asyncrt import parallelism_level
-from std.algorithm.functional import parallelize
+# `parallelize` was removed from the stdlib during Mojo 1.0's concurrency
+# rework (confirmed missing as of 1.0.0 - see forum.modular.com/t/where-did-parallelize-go/3357).
+# --parallel is disabled below until Modular ships a replacement.
 
 comptime float_type = DType.float32
 comptime int_type = DType.int32
@@ -191,21 +194,24 @@ def compute_grid(config: Config) -> Grid:
                 grid.store[1](row, col, SIMD[DType.int32, 1](Int32(iters)))
 
     if config.parallel:
-        var counter = Counter()
-        var num_threads = num_physical_cores()
-        #print("num_physical_cores() =", num_threads)          // Macbook Air M5: 10
-        #print("parallelism_level()  =", parallelism_level())  // Macbook Air M5: 4
+        #var counter = Counter()
+        #var num_threads = num_physical_cores()
+        ##print("num_physical_cores() =", num_threads)          // Macbook Air M5: 10
+        ##print("parallelism_level()  =", parallelism_level())  // Macbook Air M5: 4
 
-        @parameter
-        def thread_worker(_task_id: Int):
-            while True:
-                var row = Int(counter.next())
-                if row >= h:
-                    break
-                compute_row(row)
+        #@parameter
+        #def thread_worker(_task_id: Int):
+        #    while True:
+        #        var row = Int(counter.next())
+        #        if row >= h:
+        #            break
+        #        compute_row(row)
 
-        parallelize[thread_worker](num_threads, num_threads)
-        counter.free()
+        #parallelize[thread_worker](num_threads, num_threads)
+        #counter.free()
+        print("Warning: --parallel is temporarily unavailable (Mojo 1.0 removed `parallelize`; falling back to single-threaded).")
+        for row in range(h):
+            compute_row(row)
     else:
         for row in range(h):
             compute_row(row)
