@@ -25,14 +25,9 @@ Usage:
 
 from std.sys import argv, simd_width_of, num_physical_cores
 from std.math import iota
-from std.memory import alloc
+from std.memory.alloc import unsafe_alloc
 from std.atomic import Atomic
-#from std.runtime.asyncrt import parallelism_level
-#from std.algorithm.functional import parallelize
-from std.runtime.asyncrt import parallelism_level
-# `parallelize` was removed from the stdlib during Mojo 1.0's concurrency
-# rework (confirmed missing as of 1.0.0 - see forum.modular.com/t/where-did-parallelize-go/3357).
-# --parallel is disabled below until Modular ships a replacement.
+from max.algorithm import parallelize  # lives in the `max` package since Mojo 1.0
 
 comptime float_type = DType.float32
 comptime int_type = DType.int32
@@ -66,39 +61,23 @@ struct Config(Copyable, Movable):
 
 struct Grid(Movable):
     """Owns a flat row-major buffer of per-pixel iteration counts."""
-    var data: UnsafePointer[Int32, MutUntrackedOrigin]
+    var data: Pointer[Int32, MutUntrackedOrigin]
     var width: Int
     var height: Int
 
     def __init__(out self, width: Int, height: Int):
         self.width = width
         self.height = height
-        self.data = alloc[Int32](width * height)
+        self.data = unsafe_alloc[Int32](width * height)
 
     def store[nelts: Int](self, row: Int, col: Int, val: SIMD[DType.int32, nelts]):
-        self.data.store(row * self.width + col, val)
+        self.data.unsafe_store(row * self.width + col, val)
 
     def get(self, row: Int, col: Int) -> Int32:
-        return self.data[row * self.width + col]
+        return self.data[unsafe_offset=row * self.width + col]
 
     def free(self):
-        self.data.free()
-
-
-struct Counter(Movable):
-    """A heap-allocated atomic row counter, shared across worker threads via pointer."""
-    var ptr: UnsafePointer[Atomic[DType.int32], MutUntrackedOrigin]
-
-    def __init__(out self):
-        self.ptr = alloc[Atomic[DType.int32]](1)
-        self.ptr[0] = Atomic[DType.int32](0)
-
-    def next(self) -> Int32:
-        """Atomically claims and returns the next row index."""
-        return self.ptr[0].fetch_add(1)
-
-    def free(self):
-        self.ptr.free()
+        self.data.unsafe_free()
 
 
 def cnt2char(value: Int, max_iter: Int) -> String:
@@ -164,7 +143,7 @@ def compute_grid(config: Config) -> Grid:
     var fwidth64 = config.ur_x - config.ll_x
     var fheight64 = config.ur_y - config.ll_y
 
-    def compute_row(row: Int) capturing:
+    def compute_row(row: Int) {imm}:
         if use_simd:
             var cy = ur_y - Float32(row) * scale_y
             var cy_vec = SIMD[float_type, simd_width](cy)
@@ -194,24 +173,17 @@ def compute_grid(config: Config) -> Grid:
                 grid.store[1](row, col, SIMD[DType.int32, 1](Int32(iters)))
 
     if config.parallel:
-        #var counter = Counter()
-        #var num_threads = num_physical_cores()
-        ##print("num_physical_cores() =", num_threads)          // Macbook Air M5: 10
-        ##print("parallelism_level()  =", parallelism_level())  // Macbook Air M5: 4
+        var counter = Atomic[Scalar[DType.int32]](Int32(0))
+        var n = num_physical_cores()
 
-        #@parameter
-        #def thread_worker(_task_id: Int):
-        #    while True:
-        #        var row = Int(counter.next())
-        #        if row >= h:
-        #            break
-        #        compute_row(row)
+        def worker(_task_id: Int) {imm, mut counter}:
+            while True:
+                var row = Int(counter.fetch_add(Int32(1)))
+                if row >= h:
+                    break
+                compute_row(row)
 
-        #parallelize[thread_worker](num_threads, num_threads)
-        #counter.free()
-        print("Warning: --parallel is temporarily unavailable (Mojo 1.0 removed `parallelize`; falling back to single-threaded).")
-        for row in range(h):
-            compute_row(row)
+        parallelize(worker, n, n)
     else:
         for row in range(h):
             compute_row(row)
