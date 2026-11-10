@@ -23,7 +23,7 @@ Single Thread/Multi-thread shows the number of seconds it takes to do a 5000x500
 | [Java](https://github.com/jesper-olsen/mandelbrot-java)        |             3.9 |          0.8 |  1.4 |               0.5   |
 | [Lean](https://github.com/jesper-olsen/mandelbrot-lean)        |             4.0 |              |      |                     |
 | [Lua](https://github.com/jesper-olsen/mandelbrot-lua)          |            33.2 |              |      |                     |
-| **[Mojo](https://github.com/jesper-olsen/mandelbrot-mojo)**    |             3.8 |          1.2 |  0.8 |               0.4   |
+| **[Mojo](https://github.com/jesper-olsen/mandelbrot-mojo)**    |             3.8 |          1.1 |  0.6 |               0.2   |
 | [Odin](https://github.com/jesper-olsen/mandelbrot-odin)        |             4.4 |              |      |                     |
 | [Py](https://github.com/jesper-olsen/mandelbrot-py)            |     (pure) 93.3 | (jax)    5.9 |      |                     |
 | [R](https://github.com/jesper-olsen/mandelbrot-R)              |           335.0 |              |      |                     |
@@ -99,7 +99,10 @@ The result is a high-quality `mandelbrot.png` image.
 
 ## Performance
 
-Benchmarks were run on an **Apple M5** system with Mojo 1.0.0b2 (2cf4d08a)
+Benchmarks were run on an **Apple M5** system with Mojo 1.2.0 (2016d0cd)
+
+The `mandelbrot_simd` executable implements simd and multi-threading - multi-threading is using mojo's parallelize function from the
+standard library. It sets up 4 threads on a M5 (which has 4 super cores + 6 efficiency cores) - this can not be increased.
 
 **Generating a 1000x750 data file:**
 ```sh
@@ -118,26 +121,28 @@ time ./mandelbrot png=1 width=5000 height=5000 > image.dat
 
 ```sh
 time ./mandelbrot_simd png=1 width=5000 height=5000 simd=1 parallel=0 > image.dat
-0.71s user 0.05s system 95% cpu 0.784 total
-```
-
-**Generating a 5000x5000 data file with SIMD + Multi-Thread:**
-
-```sh
-time ./mandelbrot_simd png=1 width=5000 height=5000 simd=1 parallel=1 > image.dat
-0.77s user 0.05s system 197% cpu 0.416 total
+0.56s user 0.04s system 98% cpu 0.604 total
 ```
 
 **Generating a 5000x5000 data file with Multi-Thread:**
 
 ```sh
 time ./mandelbrot_simd png=1 width=5000 height=5000 simd=0 parallel=1 > image.dat
-4.01s user 0.05s system 336% cpu 1.207 total
+3.88s user 0.05s system 366% cpu 1.074 total
 ```
+
+**Generating a 5000x5000 data file with SIMD + Multi-Thread:**
+
+```sh
+time ./mandelbrot_simd png=1 width=5000 height=5000 simd=1 parallel=1 > image.dat
+0.60s user 0.05s system 265% cpu 0.243 total
+```
+
 
 **Generating a 20000x20000 data file with SIMD + Multi-Thread:**
 ```sh
 time ./mandelbrot_simd png=1 width=20000 height=20000 simd=1 parallel=1 > image.dat
-10.85s user 0.52s system 204% cpu 5.557 total
+8.84s user 0.50s system 283% cpu 3.297 total
+
 ```
 

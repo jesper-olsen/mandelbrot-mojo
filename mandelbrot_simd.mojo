@@ -23,7 +23,7 @@ Usage:
     ./mandelbrot simd=1 parallel=1 png=1 width=5000 height=5000 > image.dat
 """
 
-from std.sys import argv, simd_width_of, num_physical_cores
+from std.sys import argv, simd_width_of, num_physical_cores, stdout
 from std.math import iota
 from std.memory.alloc import unsafe_alloc
 from std.atomic import Atomic
@@ -193,6 +193,8 @@ def compute_grid(config: Config) -> Grid:
 
 def ascii_output_grid(config: Config, grid: Grid):
     """Renders a precomputed Grid as ASCII art to stdout."""
+    # Format each row straight into a byte buffer (no per-value String
+    # allocation) and write it with a single call.
     for y in range(config.height):
         var row = String("")
         for x in range(config.width):
@@ -202,14 +204,36 @@ def ascii_output_grid(config: Config, grid: Grid):
 
 def gptext_output_grid(config: Config, grid: Grid):
     """Renders a precomputed Grid as gnuplot text data to stdout."""
+    var buf = unsafe_alloc[UInt8](config.width * 13 + 1)  # ", " + up to 11 chars
+    var out = stdout
     for y in range(config.height - 1, -1, -1):
-        var row = String("")
+        var n = 0
         for x in range(config.width):
             if x > 0:
-                row += ", "
-            row += String(Int(grid.get(y, x)))
-        print(row)
-
+                buf[unsafe_offset=n] = UInt8(ord(","))
+                buf[unsafe_offset=n + 1] = UInt8(ord(" "))
+                n += 2
+            var v = Int(grid.get(y, x))
+            if v < 0:
+                buf[unsafe_offset=n] = UInt8(ord("-"))
+                n += 1
+                v = -v
+            var digits = 1
+            var t = v
+            while t >= 10:
+                t //= 10
+                digits += 1
+            var i = n + digits - 1
+            while True:
+                buf[unsafe_offset=i] = UInt8(ord("0") + v % 10)
+                v //= 10
+                if v == 0:
+                    break
+                i -= 1
+            n += digits
+        buf[unsafe_offset=n] = UInt8(10)
+        out.write_bytes(Span(unsafe_ptr=buf, length=n + 1))
+    buf.unsafe_free()
 
 def parse_arg(arg: String, mut config: Config) raises:
     """Parses a single 'key=value' command-line argument."""
